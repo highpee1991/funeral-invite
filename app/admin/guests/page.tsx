@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { sendInviteWhatsApp } from "../../lib/send-invite";
 
 import HeadcountBadge from "../../components/HeadcountBadge";
+import LogoutButton from "../../components/LogoutButton";
+import GuestRow from "@/app/components/GuestRow";
 
 const EVENT_ID = "cmsq2h2cf000078ty0uotgegz";
 
@@ -72,8 +74,34 @@ export default async function GuestsPage() {
     revalidatePath("/admin/guests");
   }
 
+  async function editGuest(formData: FormData) {
+    "use server";
+    const guestId = formData.get("guestId") as string;
+    const fullName = formData.get("fullName") as string;
+    const phoneNumber = formData.get("phoneNumber") as string;
+
+    await prisma.guest.update({
+      where: { id: guestId },
+      data: { fullName, phoneNumber },
+    });
+
+    revalidatePath("/admin/guests");
+  }
+
+  async function deleteGuest(formData: FormData) {
+    "use server";
+    const guestId = formData.get("guestId") as string;
+
+    await prisma.guest.delete({ where: { id: guestId } });
+
+    revalidatePath("/admin/guests");
+  }
+
   return (
     <div className="p-8 max-w-2xl mx-auto">
+      <div className="mb-2">
+        <LogoutButton />
+      </div>
       <h1 className="text-2xl font-bold mb-6">Guests</h1>
       <div className="mb-4">
         <HeadcountBadge />
@@ -106,40 +134,15 @@ export default async function GuestsPage() {
 
       <ul className="space-y-2">
         {guests.map((g) => (
-          <li
+          <GuestRow
             key={g.id}
-            className="border rounded p-3 flex justify-between items-center flex-wrap gap-2"
-          >
-            <span>
-              {g.fullName} — {g.phoneNumber}
-            </span>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-gray-500">
-                Status: {g.invite?.status}
-              </span>
-
-              <form action={sendInvite}>
-                <input type="hidden" name="inviteId" value={g.invite?.id} />
-                <button className="text-sm bg-green-600 text-white px-3 py-1 rounded">
-                  Send via WhatsApp
-                </button>
-              </form>
-
-              <form action={manualCheckIn}>
-                <input type="hidden" name="inviteId" value={g.invite?.id} />
-                <button className="text-sm bg-blue-600 text-white px-3 py-1 rounded">
-                  Manual Check-In
-                </button>
-              </form>
-
-              <form action={manualCheckOut}>
-                <input type="hidden" name="inviteId" value={g.invite?.id} />
-                <button className="text-sm bg-gray-600 text-white px-3 py-1 rounded">
-                  Manual Check-Out
-                </button>
-              </form>
-            </div>
-          </li>
+            guest={g}
+            editGuest={editGuest}
+            deleteGuest={deleteGuest}
+            sendInvite={sendInvite}
+            manualCheckIn={manualCheckIn}
+            manualCheckOut={manualCheckOut}
+          />
         ))}
       </ul>
     </div>

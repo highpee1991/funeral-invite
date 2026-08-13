@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 
 import HeadcountBadge from "../components/HeadcountBadge";
+import LogoutButton from "../components/LogoutButton";
 
 type ScanResult = {
   valid: boolean;
@@ -83,6 +84,9 @@ export default function ScanPage() {
 
   return (
     <div className="max-w-md mx-auto p-6 text-center">
+      <div className="mb-2">
+        <LogoutButton />
+      </div>
       <h1 className="text-xl font-bold mb-4">Door Scanner</h1>
       <div className="mb-4">
         <HeadcountBadge />

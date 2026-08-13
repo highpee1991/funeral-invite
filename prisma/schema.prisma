@@ -33,10 +33,10 @@ model Guest {
 }
 
 model Invite {
-  id            String       @id @default(cuid())
-  token         String       @unique @default(cuid()) // this is what gets encoded in the QR code
+   id            String       @id @default(cuid())
+  token         String       @unique @default(cuid())
   guestId       String       @unique
-  guest         Guest        @relation(fields: [guestId], references: [id])
+  guest         Guest        @relation(fields: [guestId], references: [id], onDelete: Cascade)
   status        InviteStatus @default(NOT_CHECKED_IN)
   checkedInAt   DateTime?
   checkedOutAt  DateTime?
@@ -46,9 +46,9 @@ model Invite {
 }
 
 model CheckLog {
-  id            String      @id @default(cuid())
+   id            String      @id @default(cuid())
   inviteId      String
-  invite        Invite      @relation(fields: [inviteId], references: [id])
+  invite        Invite      @relation(fields: [inviteId], references: [id], onDelete: Cascade)
   action        CheckAction
   scannedAt     DateTime    @default(now())
 }
