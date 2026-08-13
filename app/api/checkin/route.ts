@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const { inviteId } = await req.json();
@@ -24,6 +25,8 @@ export async function POST(req: NextRequest) {
       data: { inviteId, action: "CHECK_IN" },
     }),
   ]);
+
+  revalidatePath("/admin/guests");
 
   return NextResponse.json({ success: true, message: "Approved — permit entry" });
 }
