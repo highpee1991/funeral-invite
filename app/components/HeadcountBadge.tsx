@@ -23,15 +23,19 @@ export default function HeadcountBadge() {
 
   return (
     <div
-      className={`inline-block px-4 py-2 rounded-lg font-bold text-lg ${
+      className={`inline-flex items-baseline gap-1.5 px-4 py-2 rounded-sm border text-sm font-bold tracking-wide ${
         isOverCapacity
-          ? "bg-red-600 text-white"
+          ? "bg-[#9A4B3F] border-[#9A4B3F] text-white"
           : isNearCapacity
-          ? "bg-yellow-400 text-black"
-          : "bg-gray-100 text-gray-900"
+          ? "bg-[#B08D57]/10 border-[#B08D57] text-[#8A6B3F]"
+          : "bg-white border-[#2E2A24]/15 text-[#2E2A24]"
       }`}
     >
-      {data.checkedIn} / {data.capacity} checked in
+      <span>{data.checkedIn}</span>
+      <span className="opacity-60 font-normal">/ {data.capacity}</span>
+      <span className="text-[11px] tracking-[0.1em] uppercase font-semibold opacity-70">
+        checked in
+      </span>
     </div>
   );
 }

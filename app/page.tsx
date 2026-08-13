@@ -1,69 +1,66 @@
+import { prisma } from "./lib/prisma";
 import Image from "next/image";
+import SiteNav from "./components/SiteNav";
+import MemorialHeader from "./components/MemorialHeader";
 
-export default function Home() {
+export default async function HomePage() {
+  const event = await prisma.event.findFirst({ orderBy: { createdAt: "asc" } });
+
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>No event has been set up yet.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="relative min-h-screen overflow-hidden bg-[#FBF9F5]">
+      {/* Decorative floral corner, muted to sit inside the restrained palette */}
+      <Image
+        src="/floral-corner.png"
+        alt=""
+        width={400}
+        height={400}
+        className="pointer-events-none select-none absolute -top-6 -left-8 w-36 sm:w-52 md:w-64 h-auto opacity-[0.18] grayscale sepia-[0.3]"
+        priority
+      />
+      <Image
+        src="/floral-corner.png"
+        alt=""
+        width={400}
+        height={400}
+        className="pointer-events-none select-none absolute -bottom-6 -right-8 w-36 sm:w-52 md:w-64 h-auto opacity-[0.18] grayscale sepia-[0.3] rotate-180"
+      />
+
+      <SiteNav />
+
+      {/* Invitation card frame */}
+      <div className="relative min-h-screen flex items-start justify-center px-4 sm:px-8 pt-16 sm:pt-20 pb-8">
+        <div className="relative w-full max-w-md">
+          <div className="pointer-events-none absolute inset-0 border border-[#2E2A24]/15" />
+
+          <div className="relative flex flex-col items-center text-center px-6 sm:px-10 py-10 sm:py-14">
+            <MemorialHeader event={event} />
+
+            <p
+              className="fade-up font-display italic text-sm sm:text-base text-[#2E2A24]/75 leading-relaxed mt-24 sm:mt-28 mb-8 px-2"
+              style={{ animationDelay: "0.7s" }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              &ldquo;...The hour is coming, those in the memorial tombs will
+              hear his voice and come out&rdquo;
+            </p>
+
+            <p
+              className="fade-up text-xs text-[#7A6F63]"
+              style={{ animationDelay: "0.8s" }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Entry is by invitation. Please check your WhatsApp for your
+              personal invite and QR code.
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

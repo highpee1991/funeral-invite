@@ -7,18 +7,20 @@ datasource db {
   provider = "postgresql"
 }
 
-model Event {
-  id            String   @id @default(cuid())
-  deceasedName  String
-  deceasedAge   Int?
-  description   String
-  eventDate     DateTime
-  eventTime     String?
-  venue         String?
-  capacity      Int      @default(200)
-  createdAt     DateTime @default(now())
 
-  guests        Guest[]
+model Event {
+  id               String   @id @default(cuid())
+  deceasedName     String
+  deceasedAge      Int?
+  deceasedYearRange String?  
+  description      String
+  eventDate        DateTime
+  eventTime        String?
+  venue            String?
+  capacity         Int      @default(200)
+  createdAt        DateTime @default(now())
+
+  guests           Guest[]
 }
 
 model Guest {
