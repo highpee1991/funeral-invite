@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 
+import HeadcountBadge from "../components/HeadcountBadge";
+
 type ScanResult = {
   valid: boolean;
   reason?: string;
@@ -18,46 +20,46 @@ export default function ScanPage() {
   const scanningRef = useRef(false);
 
   useEffect(() => {
-  const scanner = new Html5Qrcode("reader");
-  scannerRef.current = scanner;
-  let isStarted = false;
+    const scanner = new Html5Qrcode("reader");
+    scannerRef.current = scanner;
+    let isStarted = false;
 
-  scanner
-    .start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      async (decodedText) => {
-        if (scanningRef.current) return;
-        scanningRef.current = true;
+    scanner
+      .start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        async (decodedText) => {
+          if (scanningRef.current) return;
+          scanningRef.current = true;
 
-        const res = await fetch("/api/invite-status", {
-          method: "POST",
-          body: JSON.stringify({ token: decodedText }),
-        });
-        const data: ScanResult = await res.json();
-        setResult(data);
-        setActionMessage(null);
+          const res = await fetch("/api/invite-status", {
+            method: "POST",
+            body: JSON.stringify({ token: decodedText }),
+          });
+          const data: ScanResult = await res.json();
+          setResult(data);
+          setActionMessage(null);
 
-        setTimeout(() => {
-          scanningRef.current = false;
-        }, 1500);
-      },
-      () => {}
-    )
-    .then(() => {
-      isStarted = true;
-    })
-    .catch((err) => console.error("Camera start failed:", err));
+          setTimeout(() => {
+            scanningRef.current = false;
+          }, 1500);
+        },
+        () => {},
+      )
+      .then(() => {
+        isStarted = true;
+      })
+      .catch((err) => console.error("Camera start failed:", err));
 
-  return () => {
-    if (isStarted && scannerRef.current) {
-      scannerRef.current
-        .stop()
-        .then(() => scannerRef.current?.clear())
-        .catch(() => {});
-    }
-  };
-}, []);
+    return () => {
+      if (isStarted && scannerRef.current) {
+        scannerRef.current
+          .stop()
+          .then(() => scannerRef.current?.clear())
+          .catch(() => {});
+      }
+    };
+  }, []);
 
   async function handleCheckIn() {
     if (!result?.inviteId) return;
@@ -82,6 +84,9 @@ export default function ScanPage() {
   return (
     <div className="max-w-md mx-auto p-6 text-center">
       <h1 className="text-xl font-bold mb-4">Door Scanner</h1>
+      <div className="mb-4">
+        <HeadcountBadge />
+      </div>
       <div id="reader" className="mb-6" />
 
       {result && (
@@ -119,9 +124,7 @@ export default function ScanPage() {
             </p>
           )}
 
-          {actionMessage && (
-            <p className="mt-4 font-medium">{actionMessage}</p>
-          )}
+          {actionMessage && <p className="mt-4 font-medium">{actionMessage}</p>}
         </div>
       )}
     </div>

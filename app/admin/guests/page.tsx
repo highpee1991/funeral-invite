@@ -2,6 +2,8 @@ import { prisma } from "../../lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendInviteWhatsApp } from "../../lib/send-invite";
 
+import HeadcountBadge from "../../components/HeadcountBadge";
+
 const EVENT_ID = "cmsq2h2cf000078ty0uotgegz";
 
 async function addGuest(formData: FormData) {
@@ -31,7 +33,11 @@ async function sendInvite(formData: FormData) {
   if (!invite) return;
 
   const link = `${process.env.NEXT_PUBLIC_BASE_URL}/invite/${invite.token}`;
-  await sendInviteWhatsApp(invite.guest.phoneNumber, invite.guest.fullName, link);
+  await sendInviteWhatsApp(
+    invite.guest.phoneNumber,
+    invite.guest.fullName,
+    link,
+  );
 }
 
 export default async function GuestsPage() {
@@ -43,6 +49,9 @@ export default async function GuestsPage() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Guests</h1>
+      <div className="mb-4">
+        <HeadcountBadge />
+      </div>
 
       <form action={addGuest} className="flex gap-2 mb-8">
         <input
