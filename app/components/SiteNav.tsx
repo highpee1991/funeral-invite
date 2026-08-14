@@ -61,11 +61,19 @@ export default function SiteNav() {
         </Link>
 
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/admin/guests" className={linkClass("/admin")}>
+          {/* prefetch={false}: these are auth-gated pages, and /scan in
+              particular pulls in the heavy html5-qrcode camera bundle.
+              Letting Next.js prefetch them in the background (e.g. while
+              this nav sits on the login page) can tie up compilation/
+              network right as someone is trying to log in, making the
+              login submit appear to hang. Nothing is lost by disabling
+              prefetch here since these routes require a real navigation
+              (and a cookie check) anyway. */}
+          <Link href="/admin/guests" prefetch={false} className={linkClass("/admin")}>
             Admin
           </Link>
           <span className="h-3 w-px bg-[#2E2A24]/15" aria-hidden="true" />
-          <Link href="/scan" className={linkClass("/scan")}>
+          <Link href="/scan" prefetch={false} className={linkClass("/scan")}>
             Door Scan
           </Link>
         </div>

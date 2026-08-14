@@ -9,20 +9,46 @@ import OrnateDivider from "../components/OrnateDivider";
 export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await fetch("/api/auth", {
-      method: "POST",
-      body: JSON.stringify({ password }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      router.push(data.role === "admin" ? "/admin/guests" : "/scan");
-      router.refresh();
-    } else {
-      setError("Incorrect password");
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setError("");
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+        signal: controller.signal,
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        router.push(data.role === "admin" ? "/admin/guests" : "/scan");
+        router.refresh();
+        // Deliberately leave isSubmitting true here: the button should stay
+        // disabled/spinning through the navigation instead of flashing back
+        // to an idle "Log In" state right before the page changes.
+      } else {
+        setError("Incorrect password");
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      setError(
+        err instanceof DOMException && err.name === "AbortError"
+          ? "Request timed out — check your connection and try again"
+          : "Could not reach the server — try again",
+      );
+      setIsSubmitting(false);
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -88,12 +114,23 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-[#2E2A24]/20 rounded-sm px-4 py-2.5 text-sm text-[#2E2A24] bg-white placeholder:text-[#2E2A24]/30 focus:outline-none focus:ring-1 focus:ring-[#B08D57] focus:border-[#B08D57] transition-colors"
+                  disabled={isSubmitting}
+                  className="w-full border border-[#2E2A24]/20 rounded-sm px-4 py-2.5 text-sm text-[#2E2A24] bg-white placeholder:text-[#2E2A24]/30 focus:outline-none focus:ring-1 focus:ring-[#B08D57] focus:border-[#B08D57] transition-colors disabled:opacity-60"
                 />
               </div>
 
-              <button className="w-full bg-[#2E2A24] text-[#FBF9F5] text-xs tracking-[0.14em] uppercase font-bold px-4 py-3 rounded-sm hover:bg-[#B08D57] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B08D57] focus-visible:ring-offset-2">
-                Log In
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#2E2A24] text-[#FBF9F5] text-xs tracking-[0.14em] uppercase font-bold px-4 py-3 rounded-sm hover:bg-[#B08D57] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B08D57] focus-visible:ring-offset-2 disabled:opacity-70 disabled:hover:bg-[#2E2A24] disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmitting && (
+                  <span
+                    className="inline-block w-3.5 h-3.5 border-2 border-[#FBF9F5]/40 border-t-[#FBF9F5] rounded-full animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
+                {isSubmitting ? "Signing In…" : "Log In"}
               </button>
 
               {error && (
