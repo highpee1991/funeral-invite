@@ -6,7 +6,7 @@ type Guest = {
   id: string;
   fullName: string;
   phoneNumber: string;
-  invite: { id: string; status: string } | null;
+  invite: { id: string; status: string; token: string } | null;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -44,6 +44,15 @@ export default function GuestRow({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopyLink() {
+    if (!guest.invite?.token) return;
+    const link = `${window.location.origin}/invite/${guest.invite.token}`;
+    await navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   if (isEditing) {
     return (
@@ -104,6 +113,13 @@ export default function GuestRow({
       <div className="flex items-center gap-2 flex-wrap sm:justify-end">
         <form action={sendInvite}>
           <input type="hidden" name="inviteId" value={guest.invite?.id} />
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className={`${actionBtn} border-[#B08D57]/40 text-[#8A6B3F] hover:bg-[#B08D57] hover:text-white hover:border-[#B08D57]`}
+          >
+            {copied ? "Copied!" : "Copy Link"}
+          </button>
           <button
             className={`${actionBtn} border-[#3E6A4C]/30 text-[#3E6A4C] hover:bg-[#3E6A4C] hover:text-white hover:border-[#3E6A4C]`}
           >
